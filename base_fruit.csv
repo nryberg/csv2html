@@ -1,0 +1,4 @@
+Fruit_ID,name,weight,gross_price,gross_measure,gross_count,gross_weight
+1,Bananas,2,14.00,weight,-,40
+2,Apples,0.33,22.00,count,56,-
+3,Grapes,1,4.33,weight,-,48
