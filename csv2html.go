@@ -24,32 +24,23 @@ func check(e error) {
 
 func main() {
 	var file_in, file_out string
-	args := os.Args[1:]
-	num_args := len(args)
-	fmt.Println(num_args)
-	switch num_args {
-		case 1: file_in = args[0]
-		case 2:
-			file_in = args[0]
-			file_out = args[1]
-	}
+	var style_class string
 
-	// path := path.Base(file_in)
-
-	// file_chunks := strings.Split(path, ".")
-	// file_out := file_chunks[0] + ".html"
-	// fmt.Println(file_chunks)
-
-	flag.StringVar(&file_in,"input file", "base_fruit.csv","Specify a source file")
-	flag.StringVar(&file_out,"output file", "test.html","Specify a output file")
-
+	flag.StringVar(&file_in,"in", "base_fruit.csv","Specify a source file")
+	flag.StringVar(&file_out,"out", "test.html","Specify a output file")
+	flag.StringVar(&style_class,"style", "", "Specify a CSS class style")
 	flag.Parse()
 
 	f, err := os.Open(file_in)
 	check(err)
 	r := csv.NewReader(bufio.NewReader(f))
 	row_num := 1
-	working := "<table>\n"
+	var working string
+	if len(style_class) > 0 {
+		working += "<table class='" + style_class + "'>\n"
+	} else {
+		working += "<table>\n"
+	}
 	for {
 		record, err := r.Read()
 		if row_num == 1 {
