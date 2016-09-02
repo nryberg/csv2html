@@ -21,6 +21,8 @@ func check(e error) {
 //TODO: 			 Add markdown format
 //TODO Add a help message for no args
 //TODO add a parsing for std in?
+// FYI: http://thenewstack.io/cli-command-line-programming-with-go/
+// FYI: https://golang.org/pkg/flag/#String
 
 func main() {
 	var file_in, file_out string
