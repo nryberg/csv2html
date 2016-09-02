@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
-	// "flag"
+	"flag"
 	// "path"
 	// "strings"
 )
@@ -40,6 +40,11 @@ func main() {
 	// file_out := file_chunks[0] + ".html"
 	// fmt.Println(file_chunks)
 
+	flag.StringVar(&file_in,"input file", "base_fruit.csv","Specify a source file")
+	flag.StringVar(&file_out,"output file", "test.html","Specify a output file")
+
+	flag.Parse()
+
 	f, err := os.Open(file_in)
 	check(err)
 	r := csv.NewReader(bufio.NewReader(f))
@@ -48,17 +53,17 @@ func main() {
 	for {
 		record, err := r.Read()
 		if row_num == 1 {
-			working += "<th>"
+			working += " <tr>\n"
 			for _, v := range record {
-				working += "<td>" + v + "</td>\n"
+				working += "  <th>" + v + "</th>\n"
 			}
-			working += "</th>"
+			working += " </tr>\n"
 		} else {
-			working += "<tr>"
+			working += " <tr>\n"
 			for _, v := range record {
-				working += "<td>" + v + "</td>\n"
+				working += "  <td>" + v + "</td>\n"
 			}
-			working += "</tr>"
+			working += " </tr>\n"
 		}
 		row_num += 1
 
@@ -73,14 +78,11 @@ func main() {
 	}
 	working += "</table>\n"
 
-	if num_args > 1 {
-		out, err := os.Create(file_out)
-		check(err)
-		w := bufio.NewWriter(out)
-		_, err = w.WriteString(working)
-		check(err)
-		w.Flush()
-	} else {
-		fmt.Println(working)
-	}
+	out, err := os.Create(file_out)
+	check(err)
+	w := bufio.NewWriter(out)
+	_, err = w.WriteString(working)
+	check(err)
+	w.Flush()
+	fmt.Println(working)
 }
