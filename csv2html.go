@@ -27,8 +27,8 @@ func main() {
 	var style_class string
 
 
-	flag.StringVar(&file_in,"in", "base_fruit.csv","Specify a source file")
-	flag.StringVar(&file_out,"out", "test.html","Specify a output file")
+	flag.StringVar(&file_in,"in", "./test/base_fruit.csv","Specify a source file")
+	flag.StringVar(&file_out,"out", "./test/test.html","Specify a output file")
 	flag.StringVar(&style_class,"style", "", "Specify a CSS class style")
 	flag.Parse()
 
