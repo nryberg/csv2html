@@ -17,14 +17,15 @@ func check(e error) {
 		panic(e)
 	}
 }
-// TODO: Add flags rather than
-// position based arguments
-// TODO: Add Style
-// 			 Add markdown format
+
+//TODO: 			 Add markdown format
+//TODO Add a help message for no args
+//TODO add a parsing for std in?
 
 func main() {
 	var file_in, file_out string
 	var style_class string
+
 
 	flag.StringVar(&file_in,"in", "base_fruit.csv","Specify a source file")
 	flag.StringVar(&file_out,"out", "test.html","Specify a output file")
