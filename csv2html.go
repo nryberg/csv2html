@@ -25,18 +25,33 @@ func check(e error) {
 // FYI: https://golang.org/pkg/flag/#String
 
 func main() {
+	flag.Usage = func() {
+		 fmt.Printf("Usage of %s:\n", os.Args[0])
+		 fmt.Printf("    csv2html file_in -in file_in -out file_out ...\n")
+		 flag.PrintDefaults()
+ }
 	var file_in, file_out string
 	var style_class string
-
 
 	flag.StringVar(&file_in,"in", "./test/base_fruit.csv","Specify a source file")
 	flag.StringVar(&file_out,"out", "./test/test.html","Specify a output file")
 	flag.StringVar(&style_class,"style", "", "Specify a CSS class style")
 	flag.Parse()
 
-	f, err := os.Open(file_in)
-	check(err)
-	r := csv.NewReader(bufio.NewReader(f))
+	var in *os.File
+	var err error
+
+	switch name := flag.Arg(0); {
+	case name == "":  // going for stdin
+		in = os.Stdin
+	default:
+		if in, err = os.Open(name); err != nil {
+					 log.Fatal(err)
+	 }
+	}
+
+	reader := bufio.NewReader(in)
+	r := csv.NewReader(reader)
 	row_num := 1
 	var working string
 	if len(style_class) > 0 {
@@ -78,5 +93,5 @@ func main() {
 	_, err = w.WriteString(working)
 	check(err)
 	w.Flush()
-	fmt.Println(working)
+	// fmt.Println(working)
 }
