@@ -3,13 +3,11 @@ package main
 import (
 	"bufio"
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"os"
-	"flag"
-	// "path"
-	// "strings"
 )
 
 func check(e error) {
@@ -18,50 +16,56 @@ func check(e error) {
 	}
 }
 
-//TODO: 			 Add markdown format
-//TODO Add a help message for no args
-//TODO add a parsing for std in?
-// FYI: http://thenewstack.io/cli-command-line-programming-with-go/
-// FYI: https://golang.org/pkg/flag/#String
-
 func main() {
 	flag.Usage = func() {
-		 fmt.Printf("Usage of %s:\n", os.Args[0])
-		 fmt.Printf("    csv2html file_in -in file_in -out file_out ...\n")
-		 flag.PrintDefaults()
- }
-	var file_in, file_out string
-	var style_class string
+		fmt.Printf("Usage of %s:\n", os.Args[0])
+		fmt.Printf("    csv2html inputFile -in inputFile -out outputFile ...\n")
+		flag.PrintDefaults()
+	}
+	var inputFile, outputFile string
+	var cssStyleClass string
 
-	flag.StringVar(&file_in,"in", "./test/base_fruit.csv","Specify a source file")
-	flag.StringVar(&file_out,"out", "./test/test.html","Specify a output file")
-	flag.StringVar(&style_class,"style", "", "Specify a CSS class style")
-	flag.Parse()
-
-	var in *os.File
+	var inHandle *os.File
 	var err error
 
-	switch name := flag.Arg(0); {
-	case name == "":  // going for stdin
-		in = os.Stdin
-	default:
-		if in, err = os.Open(name); err != nil {
-					 log.Fatal(err)
-	 }
+	flag.StringVar(&inputFile, "in", "", "Specify a source file")
+	flag.StringVar(&outputFile, "out", "", "Specify a output file")
+	flag.StringVar(&cssStyleClass, "style", "", "Specify a CSS class style")
+	flag.Parse()
+
+	// First check for stdin
+	stat, _ := os.Stdin.Stat()
+	if (stat.Mode() & os.ModeCharDevice) == 0 { // data is being piped to stdin
+		inHandle = os.Stdin
+	} else {
+		if flag.NFlag() == 0 { // No flags, no stdin, spit out usage and quit
+			fmt.Println("no args?")
+			flag.Usage()
+			os.Exit(1)
+		} else {
+
+			if inHandle, err = os.Open(inputFile); err != nil { // regular file input
+				log.Fatal(err)
+			}
+		}
 	}
 
-	reader := bufio.NewReader(in)
+	reader := bufio.NewReader(inHandle)
+	check(err)
 	r := csv.NewReader(reader)
-	row_num := 1
+	rowNumber := 1
 	var working string
-	if len(style_class) > 0 {
-		working += "<table class='" + style_class + "'>\n"
+	if len(cssStyleClass) > 0 {
+		working += "<table class='" + cssStyleClass + "'>\n"
 	} else {
 		working += "<table>\n"
 	}
+
+	var record []string
 	for {
-		record, err := r.Read()
-		if row_num == 1 {
+		record, err = r.Read()
+		//check(err)
+		if rowNumber == 1 {
 			working += " <tr>\n"
 			for _, v := range record {
 				working += "  <th>" + v + "</th>\n"
@@ -74,7 +78,7 @@ func main() {
 			}
 			working += " </tr>\n"
 		}
-		row_num += 1
+		rowNumber++
 
 		if err == io.EOF {
 			break
@@ -87,11 +91,14 @@ func main() {
 	}
 	working += "</table>\n"
 
-	out, err := os.Create(file_out)
-	check(err)
-	w := bufio.NewWriter(out)
-	_, err = w.WriteString(working)
-	check(err)
-	w.Flush()
-	// fmt.Println(working)
+	if outputFile != "" { // if we have an output file then write it out
+		out, err := os.Create(outputFile)
+		check(err)
+		w := bufio.NewWriter(out)
+		_, err = w.WriteString(working)
+		check(err)
+		w.Flush()
+	} else { // else send it to stdout
+		fmt.Println(working)
+	}
 }
