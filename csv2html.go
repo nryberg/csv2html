@@ -27,10 +27,12 @@ func main() {
 
 	var inHandle *os.File
 	var err error
+	var horizontal bool
 
 	flag.StringVar(&inputFile, "in", "", "Specify a source file")
 	flag.StringVar(&outputFile, "out", "", "Specify a output file")
 	flag.StringVar(&cssStyleClass, "style", "", "Specify a CSS class style")
+	flag.BoolVar(&horizontal, "horiz", false, "Specify -horiz for horizontal layout")
 	flag.Parse()
 
 	// First check for stdin
@@ -62,19 +64,26 @@ func main() {
 	}
 
 	var record []string
+	var newline string
+	if horizontal == true {
+		newline = ""
+	} else {
+		newline = "\n"
+	}
+
 	for {
 		record, err = r.Read()
 		//check(err)
 		if rowNumber == 1 {
 			working += " <tr>\n"
 			for _, v := range record {
-				working += "  <th>" + v + "</th>\n"
+				working += "  <th>" + v + "</th>" + newline
 			}
 			working += " </tr>\n"
 		} else {
 			working += " <tr>\n"
 			for _, v := range record {
-				working += "  <td>" + v + "</td>\n"
+				working += "  <td>" + v + "</td>" + newline
 			}
 			working += " </tr>\n"
 		}
